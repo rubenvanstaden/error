@@ -2,7 +2,10 @@ module github.com/rubenvanstaden/error
 
 go 1.19
 
-require google.golang.org/grpc v1.50.1
+require (
+	github.com/rubenvanstaden/test v0.1.1
+	google.golang.org/grpc v1.50.1
+)
 
 require (
 	github.com/golang/protobuf v1.5.2 // indirect

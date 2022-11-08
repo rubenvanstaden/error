@@ -6,10 +6,10 @@ import (
 )
 
 const (
-	ERROR_CONFLICT = "CONFLICT"
-	ERROR_INTERNAL = "INTERNAL"
-	ERROR_INVALID  = "INVALID"
-	ERROR_NOTFOUND = "NOT_FOUND"
+	CONFLICT = "CONFLICT"
+	INTERNAL = "INTERNAL"
+	INVALID  = "INVALID"
+	NOTFOUND = "NOT_FOUND"
 )
 
 type Error struct {
@@ -23,14 +23,14 @@ func (e *Error) Error() string {
 	var buf bytes.Buffer
 
 	if e.Op != "" {
-        fmt.Fprintf(&buf, "%s: ", e.Op)
+		fmt.Fprintf(&buf, "%s: ", e.Op)
 	}
 
 	if e.Err != nil {
 		buf.WriteString(e.Err.Error())
 	} else {
 		if e.Code != "" {
-			fmt.Fprintf(&buf, "<%s> ", e.Code)
+            fmt.Fprintf(&buf, "%s: ", e.Code)
 		}
 		buf.WriteString(e.Message)
 	}
@@ -45,7 +45,7 @@ func ErrorCode(err error) string {
 	} else if ok && e.Err != nil {
 		return ErrorCode(e.Err)
 	}
-	return ERROR_INTERNAL
+	return INTERNAL
 }
 
 func ErrorMessage(err error) string {

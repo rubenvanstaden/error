@@ -1,8 +1,9 @@
 package catch
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
+	"strings"
 )
 
 const (
@@ -10,51 +11,55 @@ const (
 	INTERNAL = "INTERNAL"
 	INVALID  = "INVALID"
 	NOTFOUND = "NOT_FOUND"
+	UNKOWN   = "UNKWON"
 )
+
+type Debug struct {
+	Op  string
+	Err error
+}
+
+func (e *Debug) Error() string {
+	var b strings.Builder
+	if e.Op != "" {
+		b.WriteString(string(e.Op))
+	}
+	if e.Err != nil {
+		if b.Len() > 0 {
+			b.WriteString(": ")
+		}
+		b.WriteString(e.Err.Error())
+	}
+	return b.String()
+}
 
 type Error struct {
 	Code    string
 	Message string
-	Op      string
-	Err     error
 }
 
 func (e *Error) Error() string {
-	var buf bytes.Buffer
-
-	if e.Op != "" {
-		fmt.Fprintf(&buf, "%s: ", e.Op)
-	}
-
-	if e.Err != nil {
-		buf.WriteString(e.Err.Error())
-	} else {
-		if e.Code != "" {
-            fmt.Fprintf(&buf, "%s: ", e.Code)
-		}
-		buf.WriteString(e.Message)
-	}
-	return buf.String()
+	return fmt.Sprintf("%s: %s", e.Code, e.Message)
 }
 
+// Unwraps an application error and returns its code.
 func ErrorCode(err error) string {
+	var e *Error
 	if err == nil {
 		return ""
-	} else if e, ok := err.(*Error); ok && e.Code != "" {
+	} else if errors.As(err, &e) {
 		return e.Code
-	} else if ok && e.Err != nil {
-		return ErrorCode(e.Err)
 	}
 	return INTERNAL
 }
 
+// Unwraps an application error and returns its message.
 func ErrorMessage(err error) string {
+	var e *Error
 	if err == nil {
 		return ""
-	} else if e, ok := err.(*Error); ok && e.Message != "" {
+	} else if errors.As(err, &e) {
 		return e.Message
-	} else if ok && e.Err != nil {
-		return ErrorMessage(e.Err)
 	}
-	return "An internal error has occurred. Please contact technical support."
+	return "Internal error."
 }
